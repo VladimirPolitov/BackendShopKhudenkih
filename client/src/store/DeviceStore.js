@@ -13,6 +13,7 @@ export default class DeviceStore {
             {id: 2, name: 'Apple'},
             {id: 3, name: 'Lenovo'},
             {id: 4, name: 'Asus'},
+            {id: 5, name: 'Aurum'},
         ]
         this._devices = [
             {id: 1, name: 'Iphone 12pro', price: 25000, rating: 5, img: 'https://cdn.svyaznoy.ru/upload/iblock/08a/iphone_13_pro_max_q421_graphite_pdp_image_position-2__ru-ru.jpg'},
