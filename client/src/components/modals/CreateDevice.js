@@ -1,17 +1,31 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Modal from "react-bootstrap/Modal";
 import {Button, Dropdown, Form, Row, Col} from "react-bootstrap";
 import {Context} from "../../index";
+import {fetchBrands, fetchDevices, fetchType} from "../../http/deviceAPI";
 
 const CreateDevice = ({show, onHide}) => {
     const {device} = useContext(Context)
+    const [name, setName] = useState('')
+    const [price, setPrice] = useState(0)
+    const [file, setFile] = useState(null)
     const [info, setInfo] = useState([])
+
+    useEffect(()=>{
+        fetchType().then(data=> device.setTypes(data))
+        fetchBrands().then(data=> device.setBrands(data))
+        fetchDevices().then(data=> device.setDevices(data.rows))
+    }, [])
 
     const addInfo = () => {
         setInfo([...info, {title: '', description: '', number: Date.now()}])
     }
     const removeInfo = (number) => {
         setInfo(info.filter(i => i.number !== number))
+    }
+
+    const selectFile = e => {
+        setFile(e.target.files[0])
     }
 
     return (
@@ -30,28 +44,34 @@ const CreateDevice = ({show, onHide}) => {
                 <Form>
 
                     <Dropdown className='mt-2 mb-2'>
-                        <Dropdown.Toggle>Выберите тип</Dropdown.Toggle>
+                        <Dropdown.Toggle>{device.selectedType.name || "Выберите тип"}</Dropdown.Toggle>
                         <Dropdown.Menu>
                             {device.types.map(type =>
-                                <Dropdown.Item key={type.id}>{type.name}</Dropdown.Item>
+                                <Dropdown.Item onClick={() => device.setSelectedType(type)} key={type.id}>{type.name}
+                                </Dropdown.Item>
                             )}
                         </Dropdown.Menu>
                     </Dropdown>
 
                     <Dropdown className='mt-2 mb-2'>
-                        <Dropdown.Toggle>Выберите брэнд</Dropdown.Toggle>
+                        <Dropdown.Toggle>{device.selectedBrand.name || "Выберите брэнд"}</Dropdown.Toggle>
                         <Dropdown.Menu>
                             {device.brands.map(brands =>
-                                <Dropdown.Item key={brands.id}>{brands.name}</Dropdown.Item>
+                                <Dropdown.Item onClick={() => device.setSelectedBrand(brands)} key={brands.id}>{brands.name}
+                                </Dropdown.Item>
                             )}
                         </Dropdown.Menu>
                     </Dropdown>
 
                     <Form.Control
+                        value={name}
+                        onChange={e => setName(e.target.value)}
                         className='mt-3'
                         placeholder='Введите название устройства'
                     />
                     <Form.Control
+                        value={price}
+                        onChange={e => setPrice(Number(e.target.value))}
                         className='mt-3'
                         placeholder='Введите стоимость устройства'
                         type='number'
@@ -59,6 +79,7 @@ const CreateDevice = ({show, onHide}) => {
                     <Form.Control
                         className='mt-3'
                         type='file'
+                        onChange={selectFile}
                     />
                     <hr/>
                     <Button
@@ -81,7 +102,7 @@ const CreateDevice = ({show, onHide}) => {
                             </Col>
                             <Col md={4}>
                                 <Button
-                                    onClick={()=>removeInfo(i.number)}
+                                    onClick={() => removeInfo(i.number)}
                                     variant={'outline-danger'}
                                 >
                                     Удалить
